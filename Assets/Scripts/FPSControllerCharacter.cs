@@ -5,10 +5,8 @@ using UnityEngine.InputSystem;
 
 public class FPSControllerCharacter : MonoBehaviour
 {
-    [SerializeField]
-    private float _mass = 80;
 
-    private Transform _body;
+    //Options dans unity
 
     [SerializeField]
     private Transform _head = null;
@@ -16,40 +14,20 @@ public class FPSControllerCharacter : MonoBehaviour
     [SerializeField]
     private float _mouseSensitivity = 60f;
 
-    private float _verticalHeadAngle = 0f;
-
     [SerializeField]
     private float _verticalHeadMinimuAngle = -90f;
+
     [SerializeField]
     private float _verticalHeadMaximumAngle = 90f;
-    private float _horizontalRotationAccumulation = 0f;
-    private Vector3 _facing = Vector3.zero;
-    private Vector3 _straffing = Vector3.zero;
 
-
-    private Vector2 _deltaLook = Vector2.zero;
-    private Vector2 _lastDeltaLook = Vector2.zero;
-    private Vector2 _deltaLookSmoothDampVelocity = Vector2.zero;
-
-    private Vector2 _deltaMove = Vector2.zero;
-    private Vector2 _lastDeltaMove = Vector2.zero;
-    private Vector2 _deltaMoveSmoothDampVelocity = Vector2.zero;
-
-    [SerializeField, Range(0,10)]
+    [SerializeField, Range(0, 10)]
     private float _moveSpeed = 3f;
 
-    [SerializeField, Range(0,100)]
+    [SerializeField, Range(0, 100)]
     private float _maxMoveAcceleration = 50;
-
-
-    private Rigidbody _rigidbody;
-
-    private Animator _animator;
 
     [SerializeField]
     private FloorSensor _floorSensor;
-
-    private CapsuleCollider _capsuleCollider;
 
     [SerializeField]
     private float _step = 0.3f;
@@ -63,37 +41,14 @@ public class FPSControllerCharacter : MonoBehaviour
     [SerializeField]
     private float _gravity = -9.81f;
 
-
-    private bool _perfomedJump = false;
-
-    private bool _performedFire = false;
-
-    private bool _performedReload = false;
-
     [SerializeField]
     private float _jumpHeight = 1.5f;
 
-    private Vector3 _groundVelocity = Vector3.zero;
-
-    private bool _aiming = false;
-
-
-
-    private Camera _camera;
-
     [SerializeField]
     private float _cameraFOV = 70;
+
     [SerializeField]
     private float _cameraAimingFOV = 40;
-
-    private float _cameraFOVTarget = 0;
-    private float _cameraFOVSmoothDampVelocity = 0;
-
-    //[SerializeField]
-    //private float _slopeLimit = 30f; //degree
-
-    //[SerializeField, Range(0,1)]
-    //private float _AirControl = 1f;
 
     [SerializeField, Range(0, 1)]
     private float _AirFriction = 1;
@@ -101,39 +56,42 @@ public class FPSControllerCharacter : MonoBehaviour
     [SerializeField, Range(0, 1)]
     private float _drag = 0.01f;
 
-
-    [SerializeField]
-    private float _jumpRecover = 0.5f;
-
-    private float _jumpRecoverTimeLeft = 0;
-
     [SerializeField]
     private WeaponControler _weaponController;
 
-    [SerializeField]
-    private float _pushForce = 5;
 
 
-
-
-    [SerializeField, Range(0,1)]
-    private float _slopeSpeedAffect = 0.5f;
-
+    // variable membre de la classe
+ 
+    private float _verticalHeadAngle = 0f;
+    private Transform _body;
+    private float _horizontalRotationAccumulation = 0f;
+    private Vector3 _facing = Vector3.zero;
+    private Vector3 _straffing = Vector3.zero;
+    private Vector2 _deltaLook = Vector2.zero;
+    private Vector2 _lastDeltaLook = Vector2.zero;
+    private Vector2 _deltaLookSmoothDampVelocity = Vector2.zero;
+    private Vector2 _deltaMove = Vector2.zero;
+    private Vector2 _lastDeltaMove = Vector2.zero;
+    private Vector2 _deltaMoveSmoothDampVelocity = Vector2.zero;
+    private Rigidbody _rigidbody;
+    private Animator _animator;
+    private CapsuleCollider _capsuleCollider;
+    private bool _perfomedJump = false;
+    private bool _performedFire = false;
+    private bool _performedReload = false;
+    private Vector3 _groundVelocity = Vector3.zero;
+    private bool _aiming = false;
+    private Camera _camera;
+    private float _cameraFOVTarget = 0;
+    private float _cameraFOVSmoothDampVelocity = 0;
     private Vector3 _momentum = Vector3.zero;
     private Vector3 _horizontalMove = Vector3.zero;
     private Vector3 _groundCorrection = Vector3.zero;
-
-
     private bool _isOnGround = false;
     private bool _isSliding = false;
     private FloorDetection _floorDetection;
-
     private float _slopeAngle = 0; //rad
-
-    private Vector3 _lastMomentum = Vector3.zero; //use for collision 
-
-
-
 
 
     // Start is called before the first frame update
@@ -181,98 +139,12 @@ public class FPSControllerCharacter : MonoBehaviour
         _aiming = value.Get<float>() > 0.5f ? true : false;
     }
 
-
-    private float getBounciness(PhysicMaterial material1, PhysicMaterial material2)
-    {
-        if(material1.bounceCombine == PhysicMaterialCombine.Average)
-            return (material1.bounciness + material2.bounciness) / 2;
-        
-        if(material1.bounceCombine == PhysicMaterialCombine.Maximum)
-            return Mathf.Max(material1.bounciness, material2.bounciness);
-
-        if (material1.bounceCombine == PhysicMaterialCombine.Minimum)
-            return Mathf.Min(material1.bounciness, material2.bounciness);
-
-        if (material1.bounceCombine == PhysicMaterialCombine.Multiply)
-            return material1.bounciness * material2.bounciness;
-
-        return 0;
-    }
-
     void OnCollisionEnter(Collision collision)
-    {
-        Vector3 averageContact = Vector3.zero;
-        Vector3 averageNormal = Vector3.zero;
-
-        foreach (ContactPoint contactPoint in collision.contacts)
-        {
-            averageContact += contactPoint.point / collision.contactCount;
-            averageNormal += contactPoint.normal / collision.contactCount;
-        }
-
-        if (collision.rigidbody != null)
-        {
-
-            Vector3 relativeVelocity =  _lastMomentum - collision.rigidbody.velocity;
-            averageNormal *= -1; 
-
-            //Split v into components u perpendicular to the wall and w parallel to it.
-            Vector3 u = Vector3.Project(relativeVelocity, averageNormal);
-            Vector3 w = relativeVelocity - u;
-
-            PhysicMaterial otherPhysicMaterial = collision.collider.material;
-            PhysicMaterial thisPhysicMaterial = _capsuleCollider.material;
-
-            Debug.Log("velocity " + collision.impulse + " normal " + averageNormal);
-
-            Debug.DrawRay(averageContact, relativeVelocity, Color.yellow, 10);
-            Debug.DrawRay(averageContact, averageNormal, Color.cyan, 10);
-
-            Debug.Log(Vector3.Project(_lastMomentum, averageNormal).magnitude * _mass);
-            Debug.Log(Vector3.Project(collision.rigidbody.velocity, averageNormal).magnitude * collision.rigidbody.mass);
-
-
-            bool recieveColision = Vector3.Project(_lastMomentum, averageNormal).magnitude * _mass < Vector3.Project(collision.rigidbody.velocity, averageNormal).magnitude * collision.rigidbody.mass;
-
-
-            float bFactor = getBounciness(otherPhysicMaterial, thisPhysicMaterial);
-           // collision.rigidbody.AddForce(collision.rigidbody.velocity * (1 - bFactor) + (u - w) * bFactor * _pushForce, ForceMode.VelocityChange);
-
-
-            
-        }
+    { 
     }
 
     void OnCollisionStay(Collision collision)
     {
-        Vector3 averageContact = Vector3.zero;
-        Vector3 averageNormal = Vector3.zero;
-
-        foreach (ContactPoint contactPoint in collision.contacts)
-        {
-            averageContact += contactPoint.point / collision.contactCount;
-            averageNormal += contactPoint.normal / collision.contactCount;
-        }
-
-        if (collision.rigidbody != null)
-        {
-            Vector3 relativeVelocity = _lastMomentum - collision.rigidbody.velocity;
-            averageNormal *= -1;
-
-            Debug.DrawRay(averageContact, collision.impulse, Color.yellow, Time.fixedDeltaTime * 1.01f);
-            Debug.DrawRay(averageContact, averageNormal, Color.cyan, Time.fixedDeltaTime *1.0f);
-
-            Debug.Log(relativeVelocity);
-
-            Vector3 forceToApply = _mass * _moveSpeed * Vector3.Project(_horizontalMove,averageNormal) * _pushForce;
-            //collision.rigidbody.AddForceAtPosition(forceToApply, averageContact, ForceMode.Force);
-        }
-    }
-
-    public void AddForce(Vector3 force)
-    {
-        Debug.Log("force add");
-        _rigidbody.AddForce(force, ForceMode.VelocityChange);
     }
 
     public void calibrateSensor()
@@ -294,6 +166,7 @@ public class FPSControllerCharacter : MonoBehaviour
 
     private void handleGround()
     {
+        // On genere les infos du sol
         _floorSensor.Cast();
         _floorDetection = _floorSensor.GetFloorDetection(); 
 
@@ -302,65 +175,90 @@ public class FPSControllerCharacter : MonoBehaviour
 
         if (_floorDetection.detectGround)
         {
+
+            // On calcule la velocité vertical en fonction de la normal au sol
             float YVelocity = Vector3.Project(_momentum, _floorDetection.hitNormal).magnitude;
+
+            // on determine si on est au sol en fonction de la celocité et de _floorDetection
             _isOnGround = YVelocity < 0.01f || _floorDetection.floorDistance < 0;
+
+            // On calcule l'angle d u sol
             _slopeAngle = Vector3.Angle(_floorDetection.hitNormal, transform.up) * Mathf.Deg2Rad;
+
+            // On calcule la friction
             float staticFriction = _floorDetection.collider.material.staticFriction;
+
+            // On determine si on est en train de glisser en fonction de l'angle et de la static friction
             _isSliding = _isOnGround && staticFriction < Mathf.Tan(_slopeAngle);
         }
 
+        // On calcule la ground Correction
         _groundCorrection = Vector3.zero;
-
         if( _isOnGround )
             _groundCorrection = (-_floorDetection.floorDistance / Time.fixedDeltaTime) * transform.up;
-
-
-        //Debug.Log("isONGround " + _isOnGround + " isSliding " + _isSliding + " slopeAnge " + _slopeAngle + " groundCorrection " + _groundCorrection);
     }
 
     private void computeMomentum()
     {
+        // Cette fonction permet de gerer l'élan du joueur (momentum)
+
         Vector3 _verticalMomentum = Vector3.zero;
         Vector3 _horizontalMomentum = Vector3.zero;
-
         
-        //Split momentum into vertical and horizontal components;
+        // On divise l'élan en un elan verticale et un élan horizontale
         if ( _isOnGround)
             _verticalMomentum = Vector3.Project(_momentum, _floorDetection.hitNormal);
         else
             _verticalMomentum = Vector3.Project(_momentum, transform.up);
-
         _horizontalMomentum = _momentum - _verticalMomentum;
 
+
+        // On initialise la friction à 0
         float frictionAttenuation = 0;
 
+        // Si je suis au sol
         if(_isOnGround)
         {
+            // Si je ne suis pas en train de glisse
             if (!_isSliding)
             {
+                // On reset l'élan verticale
                 _verticalMomentum = Vector3.zero;
-                _momentum = _horizontalMomentum + _verticalMomentum;
+                // On définit le nouveau élan
+                _momentum = _horizontalMomentum;
             }
-            else
+            else // sinon (je suis en train de glisser)
             {
+                // On ajoute au moment verticale la gravité
                 _verticalMomentum = -_maxMoveAcceleration * Time.fixedDeltaTime * transform.up;
+
+                // On Projete le moment sur le sol pour determiner la resultante de la gravité de manière horizontale
                 _momentum = _horizontalMomentum + _verticalMomentum;
                 _momentum = Vector3.ProjectOnPlane(_momentum, _floorDetection.hitNormal);
             }
 
+            // On calcule la friction 
             float dynamicFriction = _floorDetection.collider.material.dynamicFriction;
-            //Debug.Log("dynamicfriction " + dynamicFriction + " slopeAngle " + _slopeAngle );
             frictionAttenuation = _maxMoveAcceleration * dynamicFriction * Mathf.Cos(_slopeAngle);
+
+            // On cherche à atteindre la vitesse max (_horizontalMove*_moveSpeed) mais on ne peut pas à cause de la friction au sol 
+            // Permet d'avoir des sols glissant sur lequels on patine 
             _momentum = Vector3.MoveTowards(_momentum, _horizontalMove*_moveSpeed, frictionAttenuation * Time.fixedDeltaTime);
         }
-        else
+        else //sinon (on est dans les airs)
         {
+            // On ajoute la gravité
             _verticalMomentum +=  _gravity * Time.fixedDeltaTime * transform.up;
 
+            // On ajoute de la friction dans l'air 
             float airFriction = _maxMoveAcceleration * _AirFriction;
+            // On cherche à atteindre la vitesse max (_horizontalMove*_moveSpeed) mais on ne peut pas à cause de la friction dans l'air (airControl)
             _horizontalMomentum = Vector3.MoveTowards(_horizontalMomentum, _horizontalMove*_moveSpeed, airFriction * Time.fixedDeltaTime);
 
+            // On calcule le moment complet
             _momentum = _horizontalMomentum + _verticalMomentum;
+        
+            // On ajuste la vitess avec un drag ( cela permet de ne pas atteindre des vitesses extrême )
             _momentum *= Mathf.Max(0,1-_drag * Time.fixedDeltaTime ) ;
 
         }
@@ -371,45 +269,53 @@ public class FPSControllerCharacter : MonoBehaviour
 
     private void tryJump()
     {
+        // Cette fonction permet de gerer le saut
+
+        // Si il y a l'input du saut et que je suis au sol et que je ne suis pas en train de glisser, je fais le saut
         if(_perfomedJump && _isOnGround && !_isSliding)
         {
+            //calcule de la vitesse de saut pour atteindre une certaine hauteur en fonction de la gravité
             float jumpVelocity = Mathf.Max(0, _groundVelocity.y) + Mathf.Sqrt(2 * _jumpHeight * -_gravity);
 
+            // si mon moment vertical est inférieur j'ajoute le reste de vitesst pour atteindre la vitesse de saut maximal
             if(Vector3.Dot(_momentum,transform.up) < jumpVelocity )
             {
                 _momentum = _momentum - Vector3.Project(_momentum,transform.up);
                 _momentum += transform.up * jumpVelocity;
             }
 
+            // si je saute je ne suis plus au sol
             _isOnGround = false;
         }
     }    
 
     private void computeMovement()
     {
-        Vector3 groundNormal = transform.up;
-        float friction = 1;
+        // Cette fonction permet de gerer le mouvement cible en fonction des input du joueur
 
+        Vector3 groundNormal = transform.up;
+
+        // On determine la normal au sol si on est au sol
         if(_isOnGround)
         {
             groundNormal = _floorDetection.hitNormal;
-            friction = _floorDetection.collider.material.dynamicFriction;
         }
 
+        // On projette les axes de déplacements en fonction du sol
         Vector3 groundFacingAxis = Vector3.ProjectOnPlane(_facing, groundNormal).normalized;
         Vector3 groundStraffingAxis = Vector3.ProjectOnPlane(_straffing, groundNormal).normalized;
 
-        Vector3 targetVelocity = _lastDeltaMove.x * groundStraffingAxis + _lastDeltaMove.y * groundFacingAxis;
-
-        _horizontalMove = targetVelocity;
+        //on update _hotrizontalMove en fonction des inputs du joueur
+        _horizontalMove = _lastDeltaMove.x * groundStraffingAxis + _lastDeltaMove.y * groundFacingAxis;
     }
 
 
     private void FixedUpdate()
     {   
-        
+        // Calcule le momentum en fonction du mouvement précédent et retranche le groundCorrection  
         _momentum = _rigidbody.velocity - _groundCorrection;
 
+        // Si je suis au sol retire le mouvement Vertical en cas de collision
         if(_isOnGround)
             _momentum = _momentum - Vector3.Project(_momentum, _floorDetection.hitNormal);
 
@@ -418,40 +324,57 @@ public class FPSControllerCharacter : MonoBehaviour
         computeMomentum();
         tryJump();
 
+        //applique le momentum et la groundCorection
         _rigidbody.velocity = _momentum + _groundCorrection;
-        _lastMomentum = _momentum;
 
+
+        // ne pas oublier de mettre _perfomedJump à false
         _perfomedJump = false;
     }
 
     private void HandleAiming()
     {
+        // update la _cameraFOVTargeten fonction de _aiming
         _cameraFOVTarget = _aiming ? _cameraAimingFOV : _cameraFOV;
+
+        // Update le field of view de la camera à chaque pas de temps pour atteindre la target (crée un mouvement plus lisse de la caméra)
         _camera.fieldOfView = Mathf.SmoothDamp(_camera.fieldOfView, _cameraFOVTarget, ref _cameraFOVSmoothDampVelocity, 0.04f);
+
+        // Prévient l'animator si le cpontroller est en aiming ou non 
         _animator.SetBool("aiming", _aiming);
     }
 
     private void HandleCameraLook()
     {
+        //Update _lastDeltaLook en  fonction de _deltaLook pour un mouvement plus lisse
         _lastDeltaLook = Vector2.SmoothDamp(_lastDeltaLook, _deltaLook, ref _deltaLookSmoothDampVelocity, 0.04f);
+
+        // calcule la delta rotation horizontale et l'ajoute à _horizontalRotationAccumulation
         _horizontalRotationAccumulation += _lastDeltaLook.x * Time.deltaTime * _mouseSensitivity;
 
+        // calcule et clamp la rotation verticale
         _verticalHeadAngle = Mathf.Clamp(
             _verticalHeadAngle + _lastDeltaLook.y * Time.deltaTime * _mouseSensitivity,
             _verticalHeadMinimuAngle,
             _verticalHeadMaximumAngle);
 
+        // applique uniquement la rotation horizontale à la tête
         _head.localRotation = Quaternion.Euler(new Vector3(0, _horizontalRotationAccumulation, 0));
 
+        // determine les axes de mouvements du controller en fonction d'ou il regarde horizontalement
         _facing = _head.forward;
         _straffing = _head.right;
 
+        // applique la rotation vertical et horizontale à la tête
         _head.localRotation = Quaternion.Euler(new Vector3(-_verticalHeadAngle, _horizontalRotationAccumulation, 0));
     }
 
     private void HandleMovement()
     {
+        //Donne la vitesse actuelle à l'animator
         _animator.SetFloat("speed", _lastDeltaMove.magnitude);
+
+        //Update _lastDeltaMove en  fonction de _deltaMove pour un mouvement plus lisse
         _lastDeltaMove = Vector2.SmoothDamp(_lastDeltaMove, _deltaMove, ref _deltaMoveSmoothDampVelocity, 0.04f);
     }
 
@@ -459,19 +382,29 @@ public class FPSControllerCharacter : MonoBehaviour
     {
         if (_performedFire)
         {
+            //previent l'animator que l'on tire pour lancer l'animation
             _animator.SetTrigger("fire");
+
+            //retire des balle au pistolet
             _weaponController.decreaseAmmo();
-            _performedFire = false;
+
+
         }
     }
 
+
+    //Permet de gerer le reload
     private void HandleReload()
     {
         if (_performedReload)
         {
+            //previent l'animator que l'on recharge pour lancer l'animation
             _animator.SetTrigger("reload");
+            
+            //recharge l'arme
             _weaponController.reloadAmmo();
-            _performedReload = false;
+            
+
         }
     }
 
@@ -483,10 +416,18 @@ public class FPSControllerCharacter : MonoBehaviour
         HandleCameraLook();
         HandleFire();
         HandleReload();
+
+        //Si une action n'est pas réalisé lors du premier update apres que le joueur et appuyé on ne réalise pas l'action
+
+        // ne pas oublier de mettre performedReload à false
+        _performedReload = false;
+        // ne pas oublier de mettre performedFire à false
+        _performedFire = false;
     }
 
     void Start()
     {
+        // start la coroutine pour le lateFixedUpdate
         StartCoroutine(LateFixedUpdate());
     }
 
@@ -494,27 +435,35 @@ public class FPSControllerCharacter : MonoBehaviour
     {
         while (true)
         {
+            // On attend que le fixed Update est lieu
             yield return new WaitForFixedUpdate();
+
+            // Cette fonction permet de deplacer notre controlleur en fonction de la plateforme en dessous de lui.
 
             _groundVelocity = Vector3.zero;
 
-            FloorDetection floorDetection = _floorSensor.GetFloorDetection();
-
-            if (floorDetection.detectGround)
+            if (_floorDetection.detectGround)
             {
-                Rigidbody groundMovePlateforme = floorDetection.collider.transform.GetComponentInParent<Rigidbody>();
+                //On recupère le rigidbody associé à la plateforme
+                Rigidbody groundMovePlateforme = _floorDetection.collider.transform.GetComponentInParent<Rigidbody>();
 
                 if (groundMovePlateforme != null)
                 {
                     
+                    //offset entre le centre de rotation de la plateforme et le controller
                     Vector3 offset = _rigidbody.position - groundMovePlateforme.position;
+                    //effectuer une rotation de l'offset en fonction de l'angularVelcity de la plateforme
                     Vector3 rotateOffset = Quaternion.Euler(groundMovePlateforme.angularVelocity*Mathf.Rad2Deg * Time.fixedDeltaTime) * offset;
 
-                    Debug.Log("offset : " + offset + " => rotateOffset : " + rotateOffset + " from AngularVelocity " + groundMovePlateforme.angularVelocity);
-
+                    //On deplace le controller en fonction du mouvement de la plateforme et de l'offset calculé précedemment
                     _rigidbody.MovePosition(groundMovePlateforme.position + rotateOffset + groundMovePlateforme.velocity * Time.fixedDeltaTime);
+
+                    //On rotate le rigidbody en fonction de la plateforme
+                    //On bouge le rigidbody à la place de la tête car on veux garder un mouvement fluide et on profite de l'interpolation des rigidbody de unity
+                    //Cela n'a pas d'impact sur notre controller car on le déplace en fonction de l'a ou il regarde 
                     _rigidbody.MoveRotation(Quaternion.Euler(groundMovePlateforme.angularVelocity.y * transform.up * Mathf.Rad2Deg * Time.fixedDeltaTime) * _rigidbody.rotation);
 
+                    //on garde en memoire la velocity de la plateforme pour le saut
                     _groundVelocity = groundMovePlateforme.velocity;
                 }
             }
