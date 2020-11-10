@@ -60,4 +60,5 @@ __________________
 ![Alt text](Assets/Textures/image.png "Title")
 
 #### Example youtube
-[![Alt text](https://img.youtube.com/vi/VID/0.jpg)](https://www.youtube.com/watch?v=rBOvEL6sSqQ)
+
+[![DogEnd](http://img.youtube.com/vi/rBOvEL6sSqQ/0.jpg)](http://www.youtube.com/watch?v=rBOvEL6sSqQ "DogEnd")
