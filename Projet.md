@@ -52,13 +52,13 @@ ___________________________
   - ...
   
 __________________
-## Conseils
+## Conseil
 - Rester simple
   
 __________________
-#### Example d'integration d'image 
+#### Exemple d'integration d'image 
 ![Alt text](Assets/Textures/image.png "Title")
 
-#### Example youtube
+#### Exemple youtube
 
 [![DogEnd](Video/0.jpg)](http://www.youtube.com/watch?v=rBOvEL6sSqQ "DogEnd")
