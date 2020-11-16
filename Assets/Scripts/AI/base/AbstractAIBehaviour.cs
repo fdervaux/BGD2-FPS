@@ -14,12 +14,12 @@ public abstract class AbstractAIBehaviour : MonoBehaviour
 
     virtual public void onEnterState() 
     {
-        Debug.Log("on enter state");
+        //Debug.Log("on enter state");
     }
 
     virtual public void onExitState()
     {
-        Debug.Log("on exit state");
+        //Debug.Log("on exit state");
     }
 
     // OnEnable()

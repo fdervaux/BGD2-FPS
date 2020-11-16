@@ -1,5 +1,36 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &5892119283214954608
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1821848289729103706}
+  m_Layer: 0
+  m_Name: BaseCamera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1821848289729103706
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5892119283214954608}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 8942939917511637358}
+  m_Father: {fileID: 8942939918645024820}
+  m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8942939917511637357
 GameObject:
   m_ObjectHideFlags: 0
@@ -26,11 +57,11 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8942939917511637357}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 8942939918645024820}
+  m_Father: {fileID: 1821848289729103706}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!20 &8942939917511637361
@@ -142,8 +173,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 1.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 8942939917511637358}
   - {fileID: 8942939918490033331}
+  - {fileID: 1821848289729103706}
   m_Father: {fileID: 8942939918936628464}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -229,8 +260,8 @@ MonoBehaviour:
   _mouseSensitivity: 4
   _verticalHeadMinimuAngle: -90
   _verticalHeadMaximumAngle: 90
-  _walkSpeed: 10
-  _airSpeed: 10
+  _moveSpeed: 3
+  _maxMoveAcceleration: 50
   _floorSensor:
     _layermask:
       serializedVersion: 2
@@ -243,10 +274,9 @@ MonoBehaviour:
   _jumpHeight: 1.5
   _cameraFOV: 70
   _cameraAimingFOV: 40
-  _slopeLimit: 40
-  _groundFriction: 1
   _AirFriction: 0.5
-  _jumpRecover: 0.5
+  _drag: 0.01
+  _weaponController: {fileID: 0}
 --- !u!114 &2050050368
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -395,7 +425,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400012, guid: 56ec0b9a5b8762642811ea26a5242e04, type: 3}
       propertyPath: m_RootOrder
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 400012, guid: 56ec0b9a5b8762642811ea26a5242e04, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

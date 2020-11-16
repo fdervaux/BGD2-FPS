@@ -5,10 +5,10 @@ using UnityEngine;
 public class AgentController : MonoBehaviour
 {
     public Vector3 _direction = Vector3.zero;
-    public float speed = 5;
+    public float speed = 10;
     private Rigidbody _rigidBody;
 
-    public float shootForce = 10;
+    public float shootForce = 20;
 
     public Transform goal;
     public Transform ball;

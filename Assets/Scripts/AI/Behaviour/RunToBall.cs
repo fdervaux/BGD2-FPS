@@ -20,7 +20,7 @@ public class RunToBall : AbstractAIBehaviour
     // Update is called once per frame
     void Update()
     {
-        Debug.Log("RunToBall" + agentController.ball.position);
+        //Debug.Log("RunToBall" + agentController.ball.position);
 
         Vector3 ballToME = agentController.ball.position - transform.position;
         float Distance = ballToME.magnitude;

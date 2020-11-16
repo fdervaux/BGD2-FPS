@@ -109,6 +109,12 @@ public class FPSControllerCharacter : MonoBehaviour
         calibrateCollider();
     }
 
+    private void OnCollisionEnter(Collision other) {
+            
+    }
+    
+
+
     public void OnMove(InputValue value)
     {
         _deltaMove = value.Get<Vector2>();
@@ -137,10 +143,6 @@ public class FPSControllerCharacter : MonoBehaviour
     public void OnAiming(InputValue value)
     {
         _aiming = value.Get<float>() > 0.5f ? true : false;
-    }
-
-    void OnCollisionEnter(Collision collision)
-    { 
     }
 
     void OnCollisionStay(Collision collision)
