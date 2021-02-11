@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+/* ajout d'un commentaire */
+
 public struct FloorDetection
 {
     public bool detectGround;
